@@ -1,0 +1,24 @@
+// GENERATED from gridaan_offline/_image_map.json — do not hand-edit.
+// Maps remote originals to local static files for production hosts
+// (Vercel/Netlify) where no /_next/image server exists.
+export const IMAGE_MAP = {
+  "https://images.gridaan.com/products/244878e1-ec9c-4829-a1db-5a2c369aeed4/b22203f2-ae8d-474b-bc83-ffc86c3c5f91.webp": "assets/remote/ccb23bfb787b.webp",
+  "https://images.gridaan.com/products/26f3119b-73d7-41ef-b2b1-2cffa13197a8/5c3b5bbd-5e23-4d9d-a686-8b094dd61597.webp": "assets/remote/3a8b652bd054.webp",
+  "https://images.gridaan.com/products/ff2cfd2f-9e87-4b26-87cf-57dc0a70865d/bd60b6dd-7747-4d2f-802c-d5977f6eda0b.webp": "assets/remote/85041135d042.webp",
+  "https://pcekaeykxfjcawrhgcoi.supabase.co/storage/v1/object/public/product-images/chandbali-1.png": "assets/remote/29075eb91473.png",
+  "https://pcekaeykxfjcawrhgcoi.supabase.co/storage/v1/object/public/product-images/combo-pack-1.png": "assets/remote/1cfd3cd9a948.png",
+  "https://pcekaeykxfjcawrhgcoi.supabase.co/storage/v1/object/public/product-images/daily-stud-1.png": "assets/remote/d91139dd17e0.png",
+  "https://pcekaeykxfjcawrhgcoi.supabase.co/storage/v1/object/public/product-images/jhumka-1.png": "assets/remote/30efa3a9f8bc.png",
+  "https://pcekaeykxfjcawrhgcoi.supabase.co/storage/v1/object/public/product-images/kundan-choker-1.png": "assets/remote/fe2388dd3e17.png",
+  "https://pcekaeykxfjcawrhgcoi.supabase.co/storage/v1/object/public/product-images/products/01f60cb1-695a-4a41-a6c8-d05e46203034.png": "assets/remote/cf47c7f01cd9.png",
+  "https://pcekaeykxfjcawrhgcoi.supabase.co/storage/v1/object/public/product-images/products/02d3fd34-d6e7-49fb-9f70-d8f14d23408c.png": "assets/remote/0c8a2f2482ae.png",
+  "https://pcekaeykxfjcawrhgcoi.supabase.co/storage/v1/object/public/product-images/products/231a0f1c-9f40-4420-a6d1-267a4edebb7d.png": "assets/remote/31f0cb432358.png",
+  "https://pcekaeykxfjcawrhgcoi.supabase.co/storage/v1/object/public/product-images/products/31ebeb7a-9105-4022-a61d-b4db51e1a2dc.png": "assets/remote/b4f74f808167.png",
+  "https://pcekaeykxfjcawrhgcoi.supabase.co/storage/v1/object/public/product-images/products/7a83766a-d77c-4f72-a22d-253076a458a4.png": "assets/remote/b801204edd61.png",
+  "https://pcekaeykxfjcawrhgcoi.supabase.co/storage/v1/object/public/product-images/products/8e237fb2-9451-4380-a3ff-27b3d02b4e25.png": "assets/remote/0102e4066f25.png",
+  "https://pcekaeykxfjcawrhgcoi.supabase.co/storage/v1/object/public/product-images/products/971e7f73-c674-4728-be91-2d601742e0e9.png": "assets/remote/295abe67158c.png",
+  "https://pcekaeykxfjcawrhgcoi.supabase.co/storage/v1/object/public/product-images/products/9a4be308-51b9-4ad8-92d8-10d119e794b0.png": "assets/remote/7cd70cd3d7a1.png",
+  "https://pcekaeykxfjcawrhgcoi.supabase.co/storage/v1/object/public/product-images/products/c418ef5a-4959-4181-8ec6-d0d2808a3fcc.png": "assets/remote/68e83b57a6ac.png",
+  "https://pcekaeykxfjcawrhgcoi.supabase.co/storage/v1/object/public/product-images/products/c98374d6-307e-40f6-b753-f22201caf158.png": "assets/remote/4ae425b8171b.png",
+  "https://pcekaeykxfjcawrhgcoi.supabase.co/storage/v1/object/public/product-images/products/da863470-16ac-4e0f-a7ae-2897e65e0e0e.png": "assets/remote/fe760d8d1eee.png"
+}

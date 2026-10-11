@@ -40,7 +40,19 @@
   var PRE = /Gridaan|GRIDAAN|75054|59485|Udyam|UDYAM|Malpura|Khurja|Uttar Pradesh|203131|Vadavalli|logo-header|logo-search/i;
 
   function patchLogo() {
-    // header brand mark + any site logo image -> client logo.png (sole logo)
+    // header brand mark + any site logo image -> client logo.png (sole logo).
+    // depth-aware relative path works both in the mirror (served at /) and
+    // in the React app (mirror files under /mirror/).
+    var depth = 0;
+    try {
+      var segs = window.location.pathname.split("/");
+      var mi = segs.indexOf("mirror");
+      var base = mi >= 0 ? segs.slice(mi + 1) : segs.slice(1);
+      depth = Math.max(0, base.length - 1);
+    } catch (e) {}
+    var logo = "";
+    for (var d = 0; d < depth; d++) logo += "../";
+    logo += "logo.png";
     var imgs = document.querySelectorAll('img');
     for (var i = 0; i < imgs.length; i++) {
       var im = imgs[i];
@@ -49,14 +61,13 @@
       if (/(logo-header|logo-search|logo(\.|-)|\/logo)/i.test(s) ||
           /^Gridaan$/i.test(alt) || /Kalai/i.test(alt)) {
         if (!/logo\.png/i.test(s)) {
-          im.setAttribute("src", LOGO);
+          im.setAttribute("src", logo);
           im.removeAttribute("srcset");
           im.style.objectFit = "contain";
         }
       }
     }
   }
-  var LOGO = "logo.png";
 
   function replaceBrandText(root) {
     var walker = document.createTreeWalker(root || document.body, NodeFilter.SHOW_TEXT, null);

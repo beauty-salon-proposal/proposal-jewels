@@ -1,7 +1,7 @@
-
 import { useEffect, useRef } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { FILE_TO_ROUTE, resolveFile } from "../data/routes"
+import { fixImages } from "../lib/imageFallback"
 
 // iframe shell, fixed viewport height (NOT auto-height):
 // auto-height inflates the iframe viewport, and vh-based hero sections
@@ -9,6 +9,8 @@ import { FILE_TO_ROUTE, resolveFile } from "../data/routes"
 // At 100vh the inner viewport equals a real browser viewport, so the
 // mirror renders exactly like the live site. A click bridge maps
 // /mirror/*.html links to pretty SPA routes for seamless navigation.
+// An image fallback rewrites Next.js optimizer URLs (/_next/image?url=)
+// to static files so production hosts without an image server work.
 export default function MirrorPage({ file, title }) {
   const { pathname, search } = useLocation()
   const nav = useNavigate()
@@ -22,6 +24,28 @@ export default function MirrorPage({ file, title }) {
   useEffect(() => {
     const frame = frameRef.current
     if (!frame) return
+    let obs = null
+    let timer = 0
+    const sweep = () => {
+      try {
+        const d = frame.contentDocument
+        if (d) fixImages(d)
+      } catch { /* cross-origin noop */ }
+    };
+    const sweepSoon = () => {
+      clearTimeout(timer)
+      timer = setTimeout(sweep, 120)
+    };
+    const onLoad = () => {
+      sweep()
+      try {
+        obs = new MutationObserver(sweepSoon)
+        obs.observe(frame.contentDocument.documentElement,
+          { childList: true, subtree: true, attributes: true,
+            attributeFilter: ["src", "srcset"] })
+      } catch { /* noop */ }
+    };
+    frame.addEventListener("load", onLoad)
     const toTop = () => {
       try { frame.contentWindow.scrollTo(0, 0) } catch { /* noop */ }
     }
@@ -48,7 +72,10 @@ export default function MirrorPage({ file, title }) {
     }
     frame.contentDocument.addEventListener("click", onClick)
     return () => {
+      clearTimeout(timer)
+      try { obs && obs.disconnect() } catch { /* noop */ }
       frame.removeEventListener("load", toTop)
+      frame.removeEventListener("load", onLoad)
       try { frame.contentDocument.removeEventListener("click", onClick) } catch { /* noop */ }
     }
   }, [cur, nav])
