@@ -1,4 +1,4 @@
-/* Kalai's Jewellery — provisional personalization patch.
+/* Kalai's beauty & academy - personalization patch.
  * Applies branding + verified contact details to the storefront AFTER the
  * framework renders, so the underlying Next.js app stays 100% original
  * (never blank). Loaded on every page via <script data-kalai-patch>.
@@ -9,8 +9,8 @@
   "use strict";
 
   var CFG = {
-    name: "Kalai's Jewellery",
-    nameUpper: "KALAI'S JEWELLERY",
+    name: "Kalai's beauty & academy",
+    nameUpper: "KALAI'S BEAUTY & ACADEMY",
     short: "Kalai's",
     phoneDisplay: "+91 98420 23382",
     phoneTel: "tel:+919842023382",
@@ -19,9 +19,16 @@
     igHandle: "@kalai_makeupartistry",
     oldPhoneDisplay: "+91 75054 59485",
     oldPhoneDisplay2: "+91 7505459485",
+    maps: "https://maps.app.goo.gl/rkbQDb3ueGDbUiiV7",
+    streetAddress: "Seendur Complex, linganur road, Linganoor, vadavalli",
+    city: "Coimbatore",
+    region: "Tamil Nadu",
+    postalCode: "641041",
+    phoneE164: "+919842023382",
     location: "Vadavalli, Coimbatore",
-    locationFull: "Vadavalli, Coimbatore, Tamil Nadu, India",
-    metro: "Vadavalli, Coimbatore",
+    locationFull:
+      "Seendur Complex, linganur road, Linganoor, vadavalli, Coimbatore, Tamil Nadu 641041",
+    metro: "vadavalli, Coimbatore",
     region: "Tamil Nadu"
   };
 
@@ -37,7 +44,7 @@
     return true;
   }
 
-  var PRE = /Gridaan|GRIDAAN|75054|59485|Udyam|UDYAM|Malpura|Khurja|Uttar Pradesh|203131|Vadavalli|logo-header|logo-search/i;
+  var PRE = /Gridaan|GRIDAAN|75054|59485|Udyam|UDYAM|Malpura|Khurja|Uttar Pradesh|203131|Seendur|linganur|Linganoor|logo-header|logo-search/i;
 
   function patchLogo() {
     // header brand mark + any site logo image -> client logo.png (sole logo).
@@ -85,15 +92,30 @@
       t = t.replace(/Gridaan/g, CFG.name);
       // phone (React may split into fragments: "+91 ", "75054", " ", "59485")
       t = t.replace(/75054/g, "98420").replace(/59485/g, "23382");
-      // address phrases (verified location only; no street invented)
-      t = t.replace(/Door 27, Malpura, Subhash Road\s*,?\s*/g, CFG.location + ", ");
-      t = t.replace(/Khurja, District Bulandshahar/g, CFG.metro);
-      t = t.replace(/Uttar Pradesh\s*[-\u2013]\s*203131/g, CFG.region);
+      // address phrases (full address replaced in one pass to avoid
+      // duplicated fragments; comma-joined and <br/>-joined variants)
+      t = t.replace(
+        /Door\s*27,\s*Malpura,\s*Subhash Road\s*,?\s*Khurja,\s*District Bulandshahar\s*,?\s*Uttar Pradesh\s*[-–]\s*203131\s*,?\s*India/gi,
+        CFG.locationFull
+      );
+      t = t.replace(
+        /Door\s*27,\s*Malpura,\s*Subhash Road\s*,?\s*Khurja,\s*District Bulandshahar\s*,?\s*Uttar Pradesh\s*[-–]\s*203131/gi,
+        CFG.locationFull
+      );
+      // partial fallbacks (only if a fuller form above did not already match)
+      t = t.replace(/Door\s*27,\s*Malpura,\s*Subhash Road\s*,?\s*/gi, "");
+      t = t.replace(/Khurja,\s*District Bulandshahar\s*,?\s*/gi, "");
+      t = t.replace(/Uttar Pradesh\s*[-–]\s*203131\s*,?\s*/gi, "");
       // Udyam number is Gridaan's registration -> repurpose line as location
+      t = t.replace(
+        /Udyam Registration Number:?\s*UDYAM-UP-18-0093491\.?/gi,
+        "Location: " + CFG.locationFull
+      );
       t = t.replace(/UDYAM-UP-18-0093491/g, "");
-      t = t.replace(/Udyam Registration Number:\s*/gi, "Location: ");
+      t = t.replace(/Udyam Registration Number:?\s*/gi, "Location: ");
       t = t.replace(/Location:\s*Location:/g, "Location:");
-      t = t.replace(/\s*Location:\s*$/, "Location: " + CFG.locationFull);
+      t = t.replace(/\s*Location:\s*\.?\s*$/, "Location: " + CFG.locationFull);
+      t = t.replace(/Location:\s*\.\s*/gi, "Location: " + CFG.locationFull + ". ");
       if (t !== orig) {
         node.nodeValue = t;
         changed++;
@@ -109,9 +131,15 @@
       var h = a.getAttribute("href") || "";
       if (h.indexOf("wa.me/917505459485") >= 0 || h.indexOf("wa.me/919842023382") >= 0) {
         a.setAttribute("href", h.replace(/wa\.me\/917505459485/, "wa.me/919842023382")
-          .replace(/Hello%20Gridaan/i, "Hello%20Kalai's%20Jewellery"));
+          .replace(/Hello%20Gridaan/i, "Hello%20Kalai's%20beauty%20%26%20academy"));
       }
       if (h.indexOf("tel:+917505459485") >= 0) a.setAttribute("href", CFG.phoneTel);
+      // Google Maps: retarget any map/place/directions link to the real shop
+      if (/(google\.[a-z.]+\/maps|maps\.app\.goo\.gl|maps\.google|goo\.gl\/maps)/i.test(h)) {
+        a.setAttribute("href", CFG.maps);
+        a.setAttribute("target", "_blank");
+        a.setAttribute("rel", "noopener noreferrer");
+      }
     }
   }
 
@@ -223,10 +251,30 @@
     }
   }
 
+  function patchJsonLd() {
+    // Structured data lives inside <script>, which replaceBrandText skips.
+    var blocks = document.querySelectorAll('script[type="application/ld+json"]');
+    for (var i = 0; i < blocks.length; i++) {
+      var raw = blocks[i].textContent;
+      if (!raw) continue;
+      var out = raw
+        .replace(/Gridaan/gi, CFG.name)
+        .replace(/Door 27, Malpura, Subhash Road, Khurja, District Bulandshahar/gi,
+                 CFG.streetAddress)
+        .replace(/"addressLocality"\s*:\s*"[^"]*"/gi, '"addressLocality":"' + CFG.city + '"')
+        .replace(/"addressRegion"\s*:\s*"[^"]*"/gi, '"addressRegion":"' + CFG.region + '"')
+        .replace(/"postalCode"\s*:\s*"[^"]*"/gi, '"postalCode":"' + CFG.postalCode + '"')
+        .replace(/"telephone"\s*:\s*"[^"]*"/gi, '"telephone":"' + CFG.phoneE164 + '"')
+        .replace(/75054/g, "98420").replace(/59485/g, "23382");
+      if (out !== raw) blocks[i].textContent = out;
+    }
+  }
+
   function applyAll() {
     try { patchHead(); } catch (e) {}
     try { patchLogo(); } catch (e) {}
     try { patchLinks(); } catch (e) {}
+    try { patchJsonLd(); } catch (e) {}
     try { replaceBrandText(document.body); } catch (e) {}
     try { addInstagram(); } catch (e) {}
     try { addWhatsAppEnquiry(); } catch (e) {}

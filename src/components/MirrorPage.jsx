@@ -2,6 +2,12 @@ import { useEffect, useRef } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { FILE_TO_ROUTE, resolveFile } from "../data/routes"
 import { fixImages } from "../lib/imageFallback"
+import {
+  injectScrollReveal,
+  refreshScrollReveal,
+  destroyScrollReveal,
+  scrollIframeToTop,
+} from "../lib/scrollReveal"
 
 // iframe shell, fixed viewport height (NOT auto-height):
 // auto-height inflates the iframe viewport, and vh-based hero sections
@@ -26,11 +32,15 @@ export default function MirrorPage({ file, title }) {
     if (!frame) return
     let obs = null
     let timer = 0
+    let refreshTimer = 0
     const sweep = () => {
       try {
         const d = frame.contentDocument
         if (d) fixImages(d)
       } catch { /* cross-origin noop */ }
+      // Image src rewrites shift layout -> recalc reveal positions.
+      clearTimeout(refreshTimer)
+      refreshTimer = setTimeout(() => refreshScrollReveal(frame), 300)
     };
     const sweepSoon = () => {
       clearTimeout(timer)
@@ -38,6 +48,7 @@ export default function MirrorPage({ file, title }) {
     };
     const onLoad = () => {
       sweep()
+      injectScrollReveal(frame)
       try {
         obs = new MutationObserver(sweepSoon)
         obs.observe(frame.contentDocument.documentElement,
@@ -46,9 +57,7 @@ export default function MirrorPage({ file, title }) {
       } catch { /* noop */ }
     };
     frame.addEventListener("load", onLoad)
-    const toTop = () => {
-      try { frame.contentWindow.scrollTo(0, 0) } catch { /* noop */ }
-    }
+    const toTop = () => scrollIframeToTop(frame)
     frame.addEventListener("load", toTop)
     toTop()
     const onClick = (e) => {
@@ -73,7 +82,9 @@ export default function MirrorPage({ file, title }) {
     frame.contentDocument.addEventListener("click", onClick)
     return () => {
       clearTimeout(timer)
+      clearTimeout(refreshTimer)
       try { obs && obs.disconnect() } catch { /* noop */ }
+      destroyScrollReveal(frame)
       frame.removeEventListener("load", toTop)
       frame.removeEventListener("load", onLoad)
       try { frame.contentDocument.removeEventListener("click", onClick) } catch { /* noop */ }
